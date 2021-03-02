@@ -29,16 +29,7 @@ defmodule Zoneinfo do
   """
   @spec time_zones() :: [String.t()]
   def time_zones() do
-    path = Path.expand(tzpath())
-
-    Path.join(path, "**")
-    |> Path.wildcard()
-    # Filter out directories and symlinks to old names of time zones
-    |> Enum.filter(fn f -> File.lstat!(f, time: :posix).type == :regular end)
-    # Filter out anything that doesn't look like a TZif file
-    |> Enum.filter(&contains_tzif?/1)
-    # Fix up the remaining paths to look like time zones
-    |> Enum.map(&String.replace_leading(&1, path <> "/", ""))
+    Zoneinfo.Cache.get_time_zones()
   end
 
   @doc """
@@ -49,22 +40,6 @@ defmodule Zoneinfo do
     with nil <- Application.get_env(:zoneinfo, :tzpath),
          nil <- System.get_env("TZPATH") do
       "/usr/share/zoneinfo"
-    end
-  end
-
-  defp contains_tzif?(path) do
-    case File.open(path, [:read], &contains_tzif_helper/1) do
-      {:ok, result} -> result
-      _error -> false
-    end
-  end
-
-  defp contains_tzif_helper(io) do
-    with buff when is_binary(buff) and byte_size(buff) == 8 <- IO.binread(io, 8),
-         {:ok, _version} <- Zoneinfo.TZif.version(buff) do
-      true
-    else
-      _anything -> false
     end
   end
 end
