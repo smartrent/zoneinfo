@@ -52,6 +52,20 @@ defmodule Zoneinfo do
     end
   end
 
+  @doc """
+  Return whether a time zone is valid
+  """
+  @spec valid_time_zone?(String.t()) :: boolean
+  def valid_time_zone?(time_zone) do
+    case Zoneinfo.Cache.get(time_zone) do
+      {:ok, _} ->
+        true
+
+      _ ->
+        false
+    end
+  end
+
   defp contains_tzif?(path) do
     case File.open(path, [:read], &contains_tzif_helper/1) do
       {:ok, result} -> result
