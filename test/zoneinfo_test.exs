@@ -21,6 +21,11 @@ defmodule ZoneinfoTest do
     refute "America" in all_time_zones
   end
 
+  test "valid_time_zone?/1" do
+    assert Zoneinfo.valid_time_zone?("America/New_York")
+    refute Zoneinfo.valid_time_zone?("Mars/Gale_Crater")
+  end
+
   describe "tzpath/0" do
     test "app environment" do
       # This is set in the config.exs for testing
