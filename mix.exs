@@ -12,6 +12,7 @@ defmodule Zoneinfo.MixProject do
       description: description(),
       package: package(),
       compilers: compilers(Mix.env()),
+      aliases: aliases(),
       make_targets: ["all"],
       make_clean: ["clean"],
       start_permanent: Mix.env() == :prod,
@@ -26,6 +27,10 @@ defmodule Zoneinfo.MixProject do
         "hex.build": :docs
       }
     ]
+  end
+
+  defp aliases() do
+    [bench: ["run bench/bench.exs"]]
   end
 
   def compilers(env) when env in [:dev, :test] do
@@ -59,6 +64,7 @@ defmodule Zoneinfo.MixProject do
   defp deps do
     [
       # No prod dependencies. These are only for dev and test.
+      {:benchee, "~> 1.0", only: :dev},
       {:dialyxir, "~> 1.0.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:elixir_make, "> 0.6.0", only: [:dev, :test]},
