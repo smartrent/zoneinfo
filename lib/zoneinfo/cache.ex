@@ -12,10 +12,10 @@ defmodule Zoneinfo.Cache do
   end
 
   @doc """
-  Return the information for a time_zone
+  Return the information for a time zone
   """
-  # @spec get(binary) :: {:ok, Zoneinfo.TZif.t()} | {:error, File.posix() | :invalid}
-  def get(time_zone) do
+  @spec get(binary) :: {:ok, Zoneinfo.TZif.t()} | {:error, File.posix() | :invalid}
+  def get(time_zone) when is_binary(time_zone) do
     case :ets.lookup(@table, time_zone) do
       [{^time_zone, tzif}] ->
         {:ok, tzif}
