@@ -10,7 +10,7 @@ defmodule Zoneinfo.TZif do
           {integer(), Calendar.utc_offset(), Calendar.std_offset(), Calendar.zone_abbr()}
 
   defstruct [:version, :periods, :tz_string]
-  @type t() :: %__MODULE__{version: 1..3, periods: period()}
+  @type t() :: %__MODULE__{version: 1..3, periods: [period()], tz_string: String.t() | nil}
 
   @doc """
   Parse TZif data
