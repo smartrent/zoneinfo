@@ -66,6 +66,19 @@ defmodule Zoneinfo do
     end
   end
 
+  @doc """
+  Return Zoneinfo metadata on a time zone
+
+  The returned metadata is limited to what's available in the source TZif data
+  file for the time zone. It's mostly useful for verifying that time zone
+  information is available for dates used in your application. Note that proper
+  time zone calculations depend on many things and it's possible that they'll
+  work outside of the returned ranged. However, it's also possible that a time
+  zone database was built and then a law changed which invalidates a record.
+  """
+  @spec get_metadata(String.t()) :: {:ok, Zoneinfo.Meta.t()} | {:error, atom()}
+  defdelegate get_metadata(time_zone), to: Zoneinfo.Cache, as: :meta
+
   defp contains_tzif?(path) do
     case File.open(path, [:read], &contains_tzif_helper/1) do
       {:ok, result} -> result

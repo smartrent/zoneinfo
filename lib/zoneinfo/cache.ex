@@ -29,6 +29,16 @@ defmodule Zoneinfo.Cache do
       load_time_zone(time_zone)
   end
 
+  @doc """
+  Return Zoneinfo metadata on a time zone
+  """
+  @spec meta(String.t()) :: {:ok, Zoneinfo.Meta.t()} | {:error, atom()}
+  def meta(time_zone) do
+    with {:ok, tzif} <- get(time_zone) do
+      {:ok, Zoneinfo.Meta.to_meta(time_zone, tzif)}
+    end
+  end
+
   @impl GenServer
   def init(_args) do
     @table = :ets.new(@table, [:set, :protected, :named_table])
