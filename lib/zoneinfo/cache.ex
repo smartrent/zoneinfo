@@ -64,13 +64,13 @@ defmodule Zoneinfo.Cache do
     Process.send_after(self(), :gc, @ttl_seconds * 1000)
   end
 
-  defp load_time_zone(time_zone) when is_binary(time_zone) do
+  defp load_time_zone(time_zone) do
     Zoneinfo.tzpath()
     |> Path.join(time_zone)
     |> File.open(&load_tzif/1)
     |> case do
       {:ok, result} -> result
-      error -> error
+      {:error, _} = error -> error
     end
   end
 
