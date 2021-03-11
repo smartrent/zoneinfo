@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.2
+
+* New features
+  * Add `Zoneinfo.get_metadata/1` to expose diagnostic information useful for
+    sanity checking date ranges available on a system
+
 ## v0.1.1
 
 * New features
