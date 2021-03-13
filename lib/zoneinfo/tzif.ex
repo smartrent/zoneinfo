@@ -163,8 +163,8 @@ defmodule Zoneinfo.TZif do
          transition_types,
          local_time_types,
          raw_tz_designations,
-         standard_indicators,
-         ut_indicators
+         _standard_indicators,
+         _ut_indicators
        ) do
     times = for <<time::signed-size(size) <- transition_times>>, do: to_gregorian_seconds(time)
 
@@ -173,62 +173,82 @@ defmodule Zoneinfo.TZif do
         {utoff, get_tz_abbr(raw_tz_designations, tz_index), std_or_dst(dst)}
       end
 
-    num_lt_records = length(lt_record)
-    std_wall = process_standard_indicators(standard_indicators, num_lt_records)
-    ut_local = process_ut_indicators(ut_indicators, num_lt_records)
-
     {first_utoff, first_abbr, _} = hd(lt_record)
     prehistory_record = {-2_147_483_647, first_utoff, 0, first_abbr}
 
-    lt_record_w_extra = Enum.zip([lt_record, std_wall, ut_local])
-    types = for <<type <- transition_types>>, do: Enum.at(lt_record_w_extra, type)
+    types = for <<type <- transition_types>>, do: Enum.at(lt_record, type)
+    guess = first_utc_offset(types, nil)
 
-    process_records(times, types, 0, [prehistory_record])
+    process_records(times, types, guess, [prehistory_record])
   end
 
-  defp process_records([], [], _st_offset, acc), do: acc
+  # Use either the first record marked :std or
+  defp first_utc_offset([{0, "-00", :std} | rest], guess) do
+    first_utc_offset(rest, guess)
+  end
+
+  defp first_utc_offset([{offset, _tz_abbrev, :std} | _rest], _guess), do: offset
+
+  defp first_utc_offset([{offset, _tz_abbrev, :dst} | rest], nil),
+    do: first_utc_offset(rest, offset + 3600)
+
+  defp first_utc_offset([_record | rest], guess), do: first_utc_offset(rest, guess)
+  defp first_utc_offset([], guess), do: guess
+
+  defp process_records([time | times], [{0, "-00", :std} | infos], st_offset, acc) do
+    # Unknown offset is represented by "-00"
+    process_records(times, infos, st_offset, [{time, 0, 0, "-00"} | acc])
+  end
+
+  defp process_records([time | times], [{offset, tz_abbrev, :std} | infos], _st_offset, acc) do
+    record = {time, offset, 0, tz_abbrev}
+    process_records(times, infos, offset, [record | acc])
+  end
 
   defp process_records(
-         [time | times],
-         [{{utoff, tz_designation, dst}, _std_wall, _ut_local} | infos],
-         st_offset,
+         [time, time2 | times],
+         [{offset, tz_abbrev, :dst}, {next_st_offset, tz_abbrev2, :std} | infos],
+         prev_st_offset,
          acc
        ) do
-    new_st_offset = if dst == :std, do: utoff, else: st_offset
+    std_offset =
+      cond do
+        # Common case of no offset change
+        prev_st_offset == next_st_offset and offset - prev_st_offset != 0 -> prev_st_offset
+        # DST should have an offset from the UTC offset. If it doesn't, then make it be 1 hour
+        offset - next_st_offset == 0 and offset - prev_st_offset == 0 -> offset - 3600
+        # Prefer a DST with an offset from UTC
+        offset - next_st_offset == 0 -> prev_st_offset
+        offset - prev_st_offset == 0 -> next_st_offset
+        # Prefer a DST with a positive offset from UTC
+        offset - prev_st_offset < 0 and offset - next_st_offset > 0 -> next_st_offset
+        offset - prev_st_offset > 0 and offset - next_st_offset < 0 -> prev_st_offset
+        # Pick the smaller DST offset
+        abs(offset - next_st_offset) < abs(offset - prev_st_offset) -> next_st_offset
+        # Punt
+        true -> prev_st_offset
+      end
 
-    record = {time, new_st_offset, utoff - new_st_offset, tz_designation}
-    # IO.puts("#{inspect(record)} #{inspect(dst)} #{std_wall} #{ut_local}")
-    process_records(times, infos, new_st_offset, [record | acc])
+    record1 = {time, std_offset, offset - std_offset, tz_abbrev}
+    record2 = {time2, next_st_offset, 0, tz_abbrev2}
+
+    process_records(times, infos, next_st_offset, [record2, record1 | acc])
   end
+
+  defp process_records([time | times], [{offset, tz_abbrev, :dst} | infos], prev_st_offset, acc) do
+    record = {time, prev_st_offset, offset - prev_st_offset, tz_abbrev}
+
+    process_records(times, infos, prev_st_offset, [record | acc])
+  end
+
+  defp process_records([], [], _prev_st_offset, acc), do: acc
 
   defp to_gregorian_seconds(unix_time) do
     unix_time + 62_167_219_200
   end
 
-  defp process_standard_indicators(<<>>, expected) do
-    List.duplicate(:wall_time, expected)
-  end
-
-  defp process_standard_indicators(standard_indicators, _expected) do
-    for <<b <- standard_indicators>>, do: to_stdwall(b)
-  end
-
-  defp process_ut_indicators(<<>>, expected) do
-    List.duplicate(:local, expected)
-  end
-
-  defp process_ut_indicators(ut_indicators, _expected) do
-    for <<b <- ut_indicators>>, do: to_ut_local(b)
-  end
-
   defp std_or_dst(0), do: :std
   defp std_or_dst(_), do: :dst
-
-  defp to_stdwall(0), do: :wall_time
-  defp to_stdwall(_), do: :std_time
-
-  defp to_ut_local(0), do: :local
-  defp to_ut_local(_), do: :ut
 
   defp get_tz_abbr(raw_tz_designations, index) do
     raw_tz_designations
