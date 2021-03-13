@@ -30,6 +30,17 @@ defmodule Zoneinfo.Cache do
   end
 
   @doc """
+  Manually garbage collect the cache
+
+  This is useful if you know that the time zone files changed
+  and should be reloaded on the next operation.
+  """
+  @spec gc() :: :ok
+  def gc() do
+    GenServer.call(__MODULE__, :gc)
+  end
+
+  @doc """
   Return Zoneinfo metadata on a time zone
   """
   @spec meta(String.t()) :: {:ok, Zoneinfo.Meta.t()} | {:error, atom()}
@@ -42,13 +53,13 @@ defmodule Zoneinfo.Cache do
   @impl GenServer
   def init(_args) do
     @table = :ets.new(@table, [:set, :protected, :named_table])
-    gc()
+    gc_timer_ref = schedule_gc()
 
-    {:ok, nil}
+    {:ok, gc_timer_ref}
   end
 
   @impl GenServer
-  def handle_call({:load, time_zone}, _from, state) do
+  def handle_call({:load, time_zone}, _from, gc_timer_ref) do
     result = load_time_zone(time_zone)
 
     case result do
@@ -59,18 +70,32 @@ defmodule Zoneinfo.Cache do
         :ok
     end
 
-    {:reply, result, state}
+    {:reply, result, gc_timer_ref}
+  end
+
+  def handle_call(:gc, _from, gc_timer_ref) do
+    _ = Process.cancel_timer(gc_timer_ref)
+
+    run_gc()
+    gc_timer_ref = schedule_gc()
+
+    {:reply, :ok, gc_timer_ref}
   end
 
   @impl GenServer
-  def handle_info(:gc, state) do
-    gc()
-    {:noreply, state}
+  def handle_info(:gc, _gc_timer_ref) do
+    run_gc()
+    gc_timer_ref = schedule_gc()
+
+    {:noreply, gc_timer_ref}
   end
 
-  defp gc() do
+  defp run_gc() do
     # Everything gets erased at the same time to keep this simple
     :ets.delete_all_objects(@table)
+  end
+
+  defp schedule_gc() do
     Process.send_after(self(), :gc, @ttl_seconds * 1000)
   end
 
