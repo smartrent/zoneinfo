@@ -65,7 +65,7 @@ defmodule Zoneinfo.MixProject do
     [
       # No prod dependencies. These are only for dev and test.
       {:benchee, "~> 1.0", only: :dev},
-      {:dialyxir, "~> 1.0.0", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:elixir_make, "> 0.6.0", only: [:dev, :test]},
       # Locked dependencies to guarantee that tz and tzdata use the same IANA time zone database
