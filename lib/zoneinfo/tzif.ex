@@ -15,7 +15,7 @@ defmodule Zoneinfo.TZif do
   @doc """
   Parse TZif data
   """
-  # @spec parse(binary()) :: {:ok, t()} | {:error, :invalid}
+  @spec parse(binary()) :: {:ok, t()} | {:error, :invalid}
   def parse(data) when is_binary(data) do
     token = {%__MODULE__{}, data}
 
