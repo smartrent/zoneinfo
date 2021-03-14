@@ -43,6 +43,49 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
     "Africa/El_Aaiun" => 2019..2037
   }
 
+  test "quick zoneinfo consistency check for utc iso days" do
+    check_time_zone(
+      "America/New_York",
+      @earliest_time,
+      @latest_time,
+      step_size("quick1")
+    )
+  end
+
+  test "quick zoneinfo consistency check for wall clock inputs" do
+    check_wall_clock(
+      "Europe/London",
+      @earliest_time,
+      @latest_time,
+      step_size("quick2")
+    )
+  end
+
+  # Run through all of the time zone in "slow" mode
+  for time_zone <- Zoneinfo.time_zones() do
+    @tag :slow
+    test "zoneinfo consistent for #{time_zone} for utc iso days" do
+      check_time_zone(
+        unquote(time_zone),
+        @earliest_time,
+        @latest_time,
+        step_size(unquote(time_zone))
+      )
+    end
+  end
+
+  for time_zone <- Zoneinfo.time_zones() do
+    @tag :slow
+    test "zoneinfo consistent for #{time_zone} for wall clock inputs" do
+      check_wall_clock(
+        unquote(time_zone),
+        @earliest_time,
+        @latest_time,
+        step_size(unquote(time_zone))
+      )
+    end
+  end
+
   defp step_size(time_zone) do
     # Vary the step size deterministically per time zone to try to cover a few
     # more boundary conditions
@@ -90,17 +133,6 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
 
     if NaiveDateTime.compare(next_time, end_time) == :lt do
       check_time_zone(time_zone, next_time, end_time, step_size)
-    end
-  end
-
-  for time_zone <- Zoneinfo.time_zones() do
-    test "zoneinfo consistent for #{time_zone} for utc iso days" do
-      check_time_zone(
-        unquote(time_zone),
-        @earliest_time,
-        @latest_time,
-        step_size(unquote(time_zone))
-      )
     end
   end
 
@@ -175,84 +207,4 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
       check_wall_clock(time_zone, next_time, end_time, step_size)
     end
   end
-
-  for time_zone <- Zoneinfo.time_zones() do
-    test "zoneinfo consistent for #{time_zone} for wall clock inputs" do
-      check_wall_clock(
-        unquote(time_zone),
-        @earliest_time,
-        @latest_time,
-        step_size(unquote(time_zone))
-      )
-    end
-  end
-
-  # test "time_zone period from utc iso days", %{time_zones: time_zones} do
-  #   ndt_now = NaiveDateTime.local_now()
-
-  #   for time_zone <- time_zones do
-  #     for delta_days <- Enum.take_every(0..10000, 30) do
-  #       delta_seconds = delta_days * 24 * 60 * 60 * -1
-  #       ndt = NaiveDateTime.add(ndt_now, delta_seconds, :second)
-
-  #       iso_days =
-  #         Calendar.ISO.naive_datetime_to_iso_days(
-  #           ndt.year,
-  #           ndt.month,
-  #           ndt.day,
-  #           ndt.hour,
-  #           ndt.minute,
-  #           ndt.second,
-  #           {0, 6}
-  #         )
-
-  #       case Tz.TimeZoneDatabase.time_zone_period_from_utc_iso_days(iso_days, time_zone) do
-  #         {:ok,
-  #          %{
-  #            std_offset: std_offset,
-  #            utc_offset: utc_offset,
-  #            zone_abbr: abbr
-  #          }} ->
-  #           # assuming largest std offset i 1 hour
-  #           assert abs(std_offset) in 0..(60 * 60)
-  #           # largest utc offset is 14 hours
-  #           assert abs(utc_offset) in 0..(14 * 60 * 60)
-  #           assert is_binary(abbr)
-
-  #         {:error, :time_zone_not_found} ->
-  #           IO.puts("Time zone not found #{time_zone}")
-  #           assert false
-  #       end
-  #     end
-  #   end
-  # end
-
-  # test "time_zone period from wall date time", %{time_zones: time_zones} do
-  #   ndt_now = NaiveDateTime.local_now()
-
-  #   for time_zone <- time_zones do
-  #     for delta_days <- Enum.take_every(0..10000, 30) do
-  #       delta_seconds = delta_days * 24 * 60 * 60 * -1
-  #       ndt = NaiveDateTime.add(ndt_now, delta_seconds, :second)
-
-  #       case Tz.TimeZoneDatabase.time_zone_periods_from_wall_datetime(ndt, time_zone) do
-  #         {:ok,
-  #          %{
-  #            std_offset: std_offset,
-  #            utc_offset: utc_offset,
-  #            zone_abbr: abbr
-  #          }} ->
-  #           # assuming largest std offset i 1 hour
-  #           assert abs(std_offset) in 0..(60 * 60)
-  #           # largest utc offset is 14 hours
-  #           assert abs(utc_offset) in 0..(14 * 60 * 60)
-  #           assert is_binary(abbr)
-
-  #         {:error, :time_zone_not_found} ->
-  #           IO.puts("Time zone not found #{time_zone}")
-  #           assert false
-  #       end
-  #     end
-  #   end
-  # end
 end

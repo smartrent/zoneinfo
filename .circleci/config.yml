@@ -36,7 +36,7 @@ jobs:
       - run: mix compile --warnings-as-errors
       - run: mix docs
       - run: mix hex.build
-      - run: mix test
+      - run: mix test --include slow
       - run: mix dialyzer
       - run: mix credo -a --strict
       - save_cache:
