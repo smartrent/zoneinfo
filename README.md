@@ -9,7 +9,7 @@ Why Zoneinfo?
 
 * Reuse your OS-maintained time zone database (usually in `/usr/share/zoneinfo`)
 * Reduce your OTP release size by not bundling time zone data
-* Load other [TZif](https://tools.ietf.org/html/rfc8636) files
+* Load other [TZif](https://tools.ietf.org/html/rfc8536) files
 
 Why not Zoneinfo?
 
