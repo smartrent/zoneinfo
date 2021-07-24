@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.4
+
+* Improvements
+  * Updated documentation thanks to Wojtek Mach.
+
 ## v0.1.3
 
 * Improvements
