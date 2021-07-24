@@ -8,7 +8,7 @@ defmodule Zoneinfo.TimeZoneDatabase do
       #DateTime<2021-07-24 12:56:38.324705+02:00 CEST Europe/Copenhagen>
 
   or set it as the default by calling `Calendar.put_time_zone_database/1`:
-  
+
       iex> Calendar.put_time_zone_database(Zoneinfo.TimeZoneDatabase)
       iex> DateTime.now!("Europe/Copenhagen")
       #DateTime<2021-07-24 12:56:38.324705+02:00 CEST Europe/Copenhagen>

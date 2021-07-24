@@ -124,9 +124,7 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
     gregorian_seconds=#{inspect(iso_days_to_gregorian_seconds(iso_days))}
 
     Zoneinfo returned #{inspect(zoneinfo_result)}
-    #{@truth |> to_string() |> String.trim_leading("Elixir.")}       returned #{
-      inspect(expected_result)
-    }
+    #{@truth |> to_string() |> String.trim_leading("Elixir.")}       returned #{inspect(expected_result)}
 
     Add #{inspect(context)} to known discrepancy if this needs to be ignored
     """
@@ -196,9 +194,7 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
 
 
     Zoneinfo returned #{inspect(zoneinfo_result)}
-    #{@truth |> to_string() |> String.trim_leading("Elixir.")}       returned #{
-      inspect(expected_result)
-    }
+    #{@truth |> to_string() |> String.trim_leading("Elixir.")}       returned #{inspect(expected_result)}
 
     Add #{inspect(context)} to known discrepancy if this needs to be ignored
     """
