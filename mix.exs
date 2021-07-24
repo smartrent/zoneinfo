@@ -49,6 +49,7 @@ defmodule Zoneinfo.MixProject do
 
   defp package do
     %{
+      # The file list is the default minus the Makefile which is only for dev/test
       files: [
         "lib",
         "mix.exs",
