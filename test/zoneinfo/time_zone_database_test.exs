@@ -86,6 +86,21 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
     end
   end
 
+  describe "callbacks return correct errors for unknown timezones" do
+    test "time_zone_period_from_utc_iso_days/2" do
+      assert {:error, :time_zone_not_found} =
+               Zoneinfo.TimeZoneDatabase.time_zone_period_from_utc_iso_days(12, "Etc/Whatever")
+    end
+
+    test "time_zone_periods_from_wall_datetime/2" do
+      assert {:error, :time_zone_not_found} =
+               Zoneinfo.TimeZoneDatabase.time_zone_periods_from_wall_datetime(
+                 @earliest_time,
+                 "Etc/Whatever"
+               )
+    end
+  end
+
   defp step_size(time_zone) do
     # Vary the step size deterministically per time zone to try to cover a few
     # more boundary conditions

@@ -20,17 +20,25 @@ defmodule Zoneinfo.TimeZoneDatabase do
 
   @impl Calendar.TimeZoneDatabase
   def time_zone_period_from_utc_iso_days(iso_days, time_zone) do
-    with {:ok, tzif} <- Zoneinfo.Cache.get(time_zone) do
-      iso_days_to_gregorian_seconds(iso_days)
-      |> find_period_for_utc_secs(tzif.periods)
+    case Zoneinfo.Cache.get(time_zone) do
+      {:ok, tzif} ->
+        iso_days_to_gregorian_seconds(iso_days)
+        |> find_period_for_utc_secs(tzif.periods)
+
+      _ ->
+        {:error, :time_zone_not_found}
     end
   end
 
   @impl Calendar.TimeZoneDatabase
   def time_zone_periods_from_wall_datetime(naive_datetime, time_zone) do
-    with {:ok, tzif} <- Zoneinfo.Cache.get(time_zone) do
-      {seconds, _micros} = NaiveDateTime.to_gregorian_seconds(naive_datetime)
-      find_period_for_wall_secs(seconds, tzif.periods)
+    case Zoneinfo.Cache.get(time_zone) do
+      {:ok, tzif} ->
+        {seconds, _micros} = NaiveDateTime.to_gregorian_seconds(naive_datetime)
+        find_period_for_wall_secs(seconds, tzif.periods)
+
+      _ ->
+        {:error, :time_zone_not_found}
     end
   end
 
