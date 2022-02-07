@@ -33,10 +33,9 @@ defmodule Zoneinfo do
 
     Path.join(path, "**")
     |> Path.wildcard()
-    # Filter out directories and symlinks to old names of time zones
-    |> Enum.filter(fn f -> File.lstat!(f, time: :posix).type == :regular end)
-    # Filter out anything that doesn't look like a TZif file
-    |> Enum.filter(&contains_tzif?/1)
+    # Filter out symlinks to old time zones names and anything that doesn't
+    # look like it contains TZif data
+    |> Enum.filter(fn f -> File.lstat!(f, time: :posix).type == :regular and contains_tzif?(f) end)
     # Fix up the remaining paths to look like time zones
     |> Enum.map(&String.replace_leading(&1, path <> "/", ""))
   end
