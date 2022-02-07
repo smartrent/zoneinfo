@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.5
+
+* Improvements
+  * Fix Calendar return values when time zone queries are wrong. Thanks to
+    @LostKobrakai for this fix.
+
 ## v0.1.4
 
 * Improvements
