@@ -112,3 +112,6 @@ clean:
 	$(RM) -r $(BUILD) $(PREFIX)
 
 .PHONY: all clean calling_from_make
+
+# Don't echo commands unless the caller exports "V=1"
+${V}.SILENT:
