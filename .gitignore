@@ -28,3 +28,4 @@ zoneinfo-*.tar
 
 # Downloaded tzdb archive
 /tzdb-*.tar.lz
+/dl
