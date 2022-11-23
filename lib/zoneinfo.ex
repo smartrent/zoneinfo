@@ -78,6 +78,16 @@ defmodule Zoneinfo do
   @spec get_metadata(String.t()) :: {:ok, Zoneinfo.Meta.t()} | {:error, atom()}
   defdelegate get_metadata(time_zone), to: Zoneinfo.Cache, as: :meta
 
+  @doc """
+  Return the time zone database version
+
+  This attempts to read `<tzpath>/version` and returns `:unknown` if non-existent.
+  This allows external libraries to provide the version of TZ compiled that is
+  currently being used with Zoneinfo
+  """
+  @spec tz_version() :: String.t() | :unknown
+  defdelegate tz_version(), to: Zoneinfo.TimeZoneDatabase, as: :version
+
   defp contains_tzif?(path) do
     case File.open(path, [:read], &contains_tzif_helper/1) do
       {:ok, result} -> result

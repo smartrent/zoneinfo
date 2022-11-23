@@ -66,10 +66,10 @@ $(BUILD)/tzdb/version.h: $(BUILD)/tzdb/version
 ### End copied definitions
 
 $(BUILD)/tzdb/zic: $(BUILD)/tzdb $(BUILD)/tzdb/zic.c $(BUILD)/tzdb/version.h
-	$(CC_FOR_BUILD) -o $@ $(BUILD)/tzdb/zic.c
+	$(CC_FOR_BUILD) -DHAVE_GETRANDOM=false -o $@ $(BUILD)/tzdb/zic.c
 
 $(PREFIX)/zoneinfo: $(BUILD)/tzdb/zic $(PREFIX) Makefile
-	cd $(BUILD)/tzdb && ./zic -d $@ $(ZIC_OPTIONS) $(TDATA)
+	cd $(BUILD)/tzdb && ./zic -d $@ $(ZIC_OPTIONS) $(TDATA) && cp $(BUILD)/tzdb/version $@/
 
 $(TZDB_FILENAME):
 	wget $(TZDB_URL)

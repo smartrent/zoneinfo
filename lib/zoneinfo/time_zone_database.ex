@@ -42,6 +42,21 @@ defmodule Zoneinfo.TimeZoneDatabase do
     end
   end
 
+  @doc """
+  Return the time zone database version
+
+  This attempts to read `<tzpath>/version` and returns `:unknown` if non-existent.
+  This allows external libraries to provide the version of TZ compiled that is
+  currently being used with Zoneinfo
+  """
+  @spec version() :: String.t() | :unknown
+  def version() do
+    case File.read([Zoneinfo.tzpath(), "/version"]) do
+      {:ok, ver} -> String.trim(ver)
+      _ -> :unknown
+    end
+  end
+
   defp find_period_for_utc_secs(secs, periods) do
     period = Enum.find(periods, fn {time, _, _, _} -> secs >= time end)
     {:ok, period_to_map(period)}
