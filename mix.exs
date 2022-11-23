@@ -17,9 +17,7 @@ defmodule Zoneinfo.MixProject do
       make_clean: ["clean"],
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      dialyzer: [
-        flags: [:unmatched_returns, :error_handling, :race_conditions, :underspecs]
-      ],
+      dialyzer: dialyzer(),
       docs: docs(),
       preferred_cli_env: %{
         docs: :docs,
@@ -45,6 +43,14 @@ defmodule Zoneinfo.MixProject do
 
   defp description do
     "Elixir time zone support that uses OS-supplied zoneinfo files"
+  end
+
+  defp dialyzer() do
+    [
+      flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs],
+      list_unused_filters: true,
+      plt_add_apps: [:mix]
+    ]
   end
 
   defp package do
