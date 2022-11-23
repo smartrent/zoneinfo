@@ -63,7 +63,7 @@ defmodule Zoneinfo.TZif do
             time_zone_designations::unit(8)-size(charcnt)-binary,
             _leap_second_records::unit(64)-size(leapcnt)-binary,
             standard_indicators::unit(8)-size(isstdcnt)-binary,
-            ut_indicators::unit(8)-size(isutcnt)-binary, rest::binary()>>}
+            ut_indicators::unit(8)-size(isutcnt)-binary, rest::binary>>}
        ) do
     new_tzif = %{
       tzif
@@ -97,7 +97,7 @@ defmodule Zoneinfo.TZif do
             _time_zone_designations::unit(8)-size(charcnt)-binary,
             _leap_second_records::unit(64)-size(leapcnt)-binary,
             _standard_indicators::unit(8)-size(isstdcnt)-binary,
-            _ut_indicators::unit(8)-size(isutcnt)-binary, rest::binary()>>}
+            _ut_indicators::unit(8)-size(isutcnt)-binary, rest::binary>>}
        ) do
     {tzif, rest}
   end
@@ -116,7 +116,7 @@ defmodule Zoneinfo.TZif do
             time_zone_designations::unit(8)-size(charcnt)-binary,
             _leap_second_records::unit(96)-size(leapcnt)-binary,
             standard_indicators::unit(8)-size(isstdcnt)-binary,
-            ut_indicators::unit(8)-size(isutcnt)-binary, rest::binary()>>}
+            ut_indicators::unit(8)-size(isutcnt)-binary, rest::binary>>}
        ) do
     new_tzif = %{
       tzif
