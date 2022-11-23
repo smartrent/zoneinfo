@@ -173,10 +173,13 @@ defmodule Zoneinfo.TZif do
         {utoff, get_tz_abbr(raw_tz_designations, tz_index), std_or_dst(dst)}
       end
 
-    {first_utoff, first_abbr, _} = hd(lt_record)
+    types = for <<type <- transition_types>>, do: Enum.at(lt_record, type)
+
+    #  Local time for timestamps before the first transition is specified by the
+    #  first time type (time type 0).
+    {first_utoff, first_abbr, _} = hd(types)
     prehistory_record = {-2_147_483_647, first_utoff, 0, first_abbr}
 
-    types = for <<type <- transition_types>>, do: Enum.at(lt_record, type)
     guess = first_utc_offset(types, nil)
 
     process_records(times, types, guess, [prehistory_record])
