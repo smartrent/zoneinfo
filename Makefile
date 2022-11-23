@@ -12,7 +12,7 @@
 
 # Since this is for test purposes, be sure this matches what the tz (or tzdata)
 # libraries use or you'll get discrepancies that are ok.
-TZDB_VERSION=2020f
+TZDB_VERSION=2022f
 TZDB_NAME=tzdb-$(TZDB_VERSION)
 TZDB_FILENAME=$(TZDB_NAME).tar.lz
 TZDB_URL=https://data.iana.org/time-zones/releases/$(TZDB_FILENAME)

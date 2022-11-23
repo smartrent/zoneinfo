@@ -72,7 +72,7 @@ defmodule Zoneinfo.MixProject do
       {:elixir_make, "> 0.6.0", only: [:dev, :test]},
       # Locked dependencies to guarantee that tz and tzdata use the same IANA time zone database
       # It's ok to update. Change the version in the Makefile.
-      {:tz, "~> 0.12.0", only: [:dev, :test]},
+      {:tz, "~> 0.24.0", only: [:dev, :test]},
       {:tzdata, "~> 1.1.0", only: [:dev, :test]}
     ]
   end

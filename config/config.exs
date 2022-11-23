@@ -10,4 +10,4 @@ config :zoneinfo, tzpath: Path.expand(Path.join(Mix.Project.compile_path(), "../
 # something newer. See the Makefile for which timezone the unit tests use.
 config :tzdata, :autoupdate, :disabled
 
-config :tz, build_time_zone_periods_with_ongoing_dst_changes_until_year: 2039
+config :tz, build_dst_periods_until_year: 2039
