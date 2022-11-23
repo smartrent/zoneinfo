@@ -71,15 +71,19 @@ $(BUILD)/tzdb/version.h: $(BUILD)/tzdb/version
 ### End copied definitions
 
 $(BUILD)/tzdb/zic: $(BUILD)/tzdb $(BUILD)/tzdb/zic.c $(BUILD)/tzdb/version.h
+	@echo " HOSTCC $(notdir $@)"
 	$(CC_FOR_BUILD) $(CFLAGS) -o $@ $(BUILD)/tzdb/zic.c
 
 $(PREFIX)/zoneinfo: $(BUILD)/tzdb/zic $(PREFIX) Makefile
+	@echo "    ZIC $(notdir $@)"
 	cd $(BUILD)/tzdb && ./zic -d $@ $(ZIC_OPTIONS) $(TDATA)
 
 $(TZDB_FILENAME):
+	@echo "   WGET $(notdir $@)"
 	wget $(TZDB_URL)
 
 $(BUILD)/tzdb: $(TZDB_FILENAME) $(BUILD)
+	@echo "  UNTAR $(TZDB_FILENAME)"
 	cd $(BUILD) && lzip -d -c $(PWD)/$(TZDB_FILENAME) | tar x
 	mv $(BUILD)/$(TZDB_NAME) $@
 
@@ -90,3 +94,6 @@ clean:
 	$(RM) -r $(BUILD) $(PREFIX)
 
 .PHONY: all clean calling_from_make
+
+# Don't echo commands unless the caller exports "V=1"
+${V}.SILENT:
