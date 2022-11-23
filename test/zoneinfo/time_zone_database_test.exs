@@ -15,7 +15,7 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
   # zone conversions will return the right answer. However, the utc_offset and
   # std_offset differ from Tz.
   @std_offset_discrepancies %{
-    # Europe/Monaco and Europe/Paris
+    # Europe/Paris 1944-45
     #
     # Zoneinfo returned {:ok, %{std_offset: 3600, utc_offset: 3600, zone_abbr: "WEMT"}}
     # Tz       returned {:ok, %{std_offset: 7200, utc_offset: 0, zone_abbr: "WEMT"}}
@@ -25,22 +25,17 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
     # 1 hour in both cases and the heuristic rules prioritize matching that
     # one. You can tell by comparing zone abbreviations that the real one is
     # the 2 hour offset.
-    "Europe/Monaco" => [1945],
     "Europe/Paris" => 1944..1945,
 
-    # Africa/Casablanca and Africa/El_Aaiun
+    # Asia/Tehran 1977
     #
-    # Zoneinfo returned {:ok, %{std_offset: 3600, utc_offset: -3600, zone_abbr: "+00"}}
-    # Tz       returned {:ok, %{std_offset: -3600, utc_offset: 3600, zone_abbr: "+00"}}
+    # Zoneinfo returned {:ok, %{std_offset: 1800, utc_offset: 14400, zone_abbr: "+0430"}}
+    # Tz       returned {:ok, %{std_offset: 3600, utc_offset: 12600, zone_abbr: "+0430"}}
     #
-    # Casablanca and El Aaiun are on DST (+01) most of the year and then drops
-    # back to standard time (+00) for Ramadan. I think that both Zoneinfo and
-    # Tz are wrong. Since it's a standard time, it seems like std_offset should
-    # be 0. Unfortunately, the TZif file marks the time zone records as "dst"
-    # which I think is an artifact of the IANA rules database hardcoding the
-    # start and end dates.
-    "Africa/Casablanca" => 2019..2037,
-    "Africa/El_Aaiun" => 2019..2037
+    # Tz is right. The std_offset should be one hour based on how I read the
+    # intent in the time zone database text. This seems hard for zoneinfo to
+    # guess from the compiled tzdata file, so ignore.
+    "Asia/Tehran" => [1977]
   }
 
   test "quick zoneinfo consistency check for utc iso days" do

@@ -12,7 +12,7 @@
 
 # Since this is for test purposes, be sure this matches what the tz (or tzdata)
 # libraries use or you'll get discrepancies that are ok.
-TZDB_VERSION=2022a
+TZDB_VERSION=2022f
 TZDB_NAME=tzdb-$(TZDB_VERSION)
 TZDB_FILENAME=$(TZDB_NAME).tar.lz
 TZDB_URL=https://data.iana.org/time-zones/releases/$(TZDB_FILENAME)
@@ -28,6 +28,11 @@ ZIC_OPTIONS=-r @$(FROM_DATE_EPOCH)/@$(TO_DATE_EPOCH)
 PREFIX = $(MIX_APP_PATH)/priv
 BUILD  = $(MIX_APP_PATH)/obj
 CC_FOR_BUILD=cc
+
+ifeq ($(shell uname -s),Darwin)
+# MacOS doesn't have the getrandom syscall. This is used for temporary filename generation in zic.
+CFLAGS+=-DHAVE_GETRANDOM=false
+endif
 
 calling_from_make:
 	mix compile
@@ -66,7 +71,7 @@ $(BUILD)/tzdb/version.h: $(BUILD)/tzdb/version
 ### End copied definitions
 
 $(BUILD)/tzdb/zic: $(BUILD)/tzdb $(BUILD)/tzdb/zic.c $(BUILD)/tzdb/version.h
-	$(CC_FOR_BUILD) -o $@ $(BUILD)/tzdb/zic.c
+	$(CC_FOR_BUILD) $(CFLAGS) -o $@ $(BUILD)/tzdb/zic.c
 
 $(PREFIX)/zoneinfo: $(BUILD)/tzdb/zic $(PREFIX) Makefile
 	cd $(BUILD)/tzdb && ./zic -d $@ $(ZIC_OPTIONS) $(TDATA)
@@ -76,7 +81,6 @@ $(TZDB_FILENAME):
 
 $(BUILD)/tzdb: $(TZDB_FILENAME) $(BUILD)
 	cd $(BUILD) && lzip -d -c $(PWD)/$(TZDB_FILENAME) | tar x
-	cd $(BUILD)/$(TZDB_NAME) && patch -p1 < $(PWD)/patches/0001-Fix-bug-with-zic-r-cutoff.patch
 	mv $(BUILD)/$(TZDB_NAME) $@
 
 $(PREFIX) $(BUILD):
