@@ -111,7 +111,7 @@ defmodule Zoneinfo.Cache do
 
   # :all will be deprecated in Elixir v1.17 but fails dialyzer.
   # :eof is only available in >= 1.13, so conditionally use it
-  @binread_all if System.version() =~ ~r/^1.13/, do: :eof, else: :all
+  @binread_all if Version.match?(System.version(), ">= 1.13.0"), do: :eof, else: :all
 
   defp load_tzif(io) do
     with header when is_binary(header) and byte_size(header) == 8 <- IO.binread(io, 8),
