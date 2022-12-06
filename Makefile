@@ -12,7 +12,7 @@
 
 # Since this is for test purposes, be sure this matches what the tz (or tzdata)
 # libraries use or you'll get discrepancies that are ok.
-TZDB_VERSION=2021a
+TZDB_VERSION=2022a
 TZDB_NAME=tzdb-$(TZDB_VERSION)
 TZDB_FILENAME=$(TZDB_NAME).tar.lz
 TZDB_URL=https://data.iana.org/time-zones/releases/$(TZDB_FILENAME)
@@ -76,6 +76,7 @@ $(TZDB_FILENAME):
 
 $(BUILD)/tzdb: $(TZDB_FILENAME) $(BUILD)
 	cd $(BUILD) && lzip -d -c $(PWD)/$(TZDB_FILENAME) | tar x
+	cd $(BUILD)/$(TZDB_NAME) && patch -p1 < $(PWD)/patches/0001-Fix-bug-with-zic-r-cutoff.patch
 	mv $(BUILD)/$(TZDB_NAME) $@
 
 $(PREFIX) $(BUILD):
