@@ -173,6 +173,8 @@ defmodule Zoneinfo.TZif do
         {utoff, get_tz_abbr(raw_tz_designations, tz_index), std_or_dst(dst)}
       end
 
+    #  Local time for timestamps before the first transition is specified by the
+    #  first time type (time type 0).
     {first_utoff, first_abbr, _} = hd(lt_record)
     prehistory_record = {-2_147_483_647, first_utoff, 0, first_abbr}
 
