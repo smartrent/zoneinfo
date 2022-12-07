@@ -96,6 +96,50 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
     end
   end
 
+  describe "times before the known dates are unknown" do
+    test "times before zic -r" do
+      # Since we generate the time zone database with zic -r to start it at
+      # 1940, make sure that earlier times return a 0 offset. This corresponds
+      # to the -00 timezone that zic uses to mark these.
+      dec31_1939 = Calendar.ISO.naive_datetime_to_iso_days(1939, 12, 31, 12, 00, 00, {0, 0})
+      jan1_1940 = Calendar.ISO.naive_datetime_to_iso_days(1940, 1, 1, 12, 0, 0, {0, 0})
+
+      minus_12_hours = -12 * 60 * 60
+
+      assert {:ok, %{std_offset: 0, utc_offset: minus_12_hours, zone_abbr: "-12"}} ==
+               Zoneinfo.TimeZoneDatabase.time_zone_period_from_utc_iso_days(
+                 jan1_1940,
+                 "Etc/GMT+12"
+               )
+
+      assert {:ok, %{std_offset: 0, utc_offset: 0, zone_abbr: "-00"}} ==
+               Zoneinfo.TimeZoneDatabase.time_zone_period_from_utc_iso_days(
+                 dec31_1939,
+                 "Etc/GMT+12"
+               )
+    end
+
+    test "Troll times" do
+      # Norway's Troll research base wasn't inhabited until around 2004, so it didn't
+      # have a time zone. Times before that should be unknown.
+
+      pre_troll = Calendar.ISO.naive_datetime_to_iso_days(2003, 1, 1, 12, 00, 00, {0, 0})
+      troll_exists = Calendar.ISO.naive_datetime_to_iso_days(2005, 5, 1, 12, 0, 0, {0, 0})
+
+      assert {:ok, %{std_offset: 7200, utc_offset: 0, zone_abbr: "+02"}} ==
+               Zoneinfo.TimeZoneDatabase.time_zone_period_from_utc_iso_days(
+                 troll_exists,
+                 "Antarctica/Troll"
+               )
+
+      assert {:ok, %{std_offset: 0, utc_offset: 0, zone_abbr: "-00"}} ==
+               Zoneinfo.TimeZoneDatabase.time_zone_period_from_utc_iso_days(
+                 pre_troll,
+                 "Antarctica/Troll"
+               )
+    end
+  end
+
   defp step_size(time_zone) do
     # Vary the step size deterministically per time zone to try to cover a few
     # more boundary conditions
