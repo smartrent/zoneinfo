@@ -27,6 +27,8 @@ ZIC_OPTIONS=-r @$(FROM_DATE_EPOCH)/@$(TO_DATE_EPOCH)
 
 PREFIX = $(MIX_APP_PATH)/priv
 BUILD  = $(MIX_APP_PATH)/obj
+TZDB_DIR = $(BUILD)/tzdb-$(TZDB_VERSION)
+
 CC_FOR_BUILD=cc
 
 ifeq ($(shell uname -s),Darwin)
@@ -70,11 +72,11 @@ $(BUILD)/tzdb/version.h: $(BUILD)/tzdb/version
 
 ### End copied definitions
 
-$(BUILD)/tzdb/zic: $(BUILD)/tzdb $(BUILD)/tzdb/zic.c $(BUILD)/tzdb/version.h
+$(TZDB_DIR)/zic: $(TZDB_DIR) $(TZDB_DIR)/zic.c
 	@echo " HOSTCC $(notdir $@)"
 	$(CC_FOR_BUILD) $(CFLAGS) -o $@ $(BUILD)/tzdb/zic.c
 
-$(PREFIX)/zoneinfo: $(BUILD)/tzdb/zic $(PREFIX) Makefile
+$(PREFIX)/zoneinfo: $(TZDB_DIR)/zic $(PREFIX) Makefile
 	@echo "    ZIC $(notdir $@)"
 	cd $(BUILD)/tzdb && ./zic -d $@ $(ZIC_OPTIONS) $(TDATA)
 
@@ -82,10 +84,10 @@ $(TZDB_FILENAME):
 	@echo "   WGET $(notdir $@)"
 	wget $(TZDB_URL)
 
-$(BUILD)/tzdb: $(TZDB_FILENAME) $(BUILD)
+$(TZDB_DIR): $(TZDB_FILENAME) $(BUILD)
 	@echo "  UNTAR $(TZDB_FILENAME)"
+	$(RM) -r $@
 	cd $(BUILD) && lzip -d -c $(PWD)/$(TZDB_FILENAME) | tar x
-	mv $(BUILD)/$(TZDB_NAME) $@
 
 $(PREFIX) $(BUILD):
 	mkdir -p $@
