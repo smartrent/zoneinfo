@@ -141,7 +141,7 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
     Zoneinfo returned #{inspect(zoneinfo_result)}
     #{@truth |> to_string() |> String.trim_leading("Elixir.")}       returned #{inspect(expected_result)}
 
-    Add #{inspect(context)} to known discrepancy if this needs to be ignored
+    Add `#{inspect(time_zone)} => [#{time.year}]` to known discrepancy map if this needs to be ignored
     """
 
     if NaiveDateTime.compare(next_time, end_time) == :lt do
@@ -211,7 +211,7 @@ defmodule Zoneinfo.TimeZoneDatabaseTest do
     Zoneinfo returned #{inspect(zoneinfo_result)}
     #{@truth |> to_string() |> String.trim_leading("Elixir.")}       returned #{inspect(expected_result)}
 
-    Add #{inspect(context)} to known discrepancy if this needs to be ignored
+    Add `#{inspect(time_zone)} => [#{time.year}]` to known discrepancy map if this needs to be ignored
     """
 
     if NaiveDateTime.compare(next_time, end_time) == :lt do
