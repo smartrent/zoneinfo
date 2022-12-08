@@ -62,8 +62,8 @@ YDATA=          $(PRIMARY_YDATA) etcetera
 NDATA=          factory
 TDATA=          $(YDATA)
 
-$(BUILD)/tzdb/version.h: $(BUILD)/tzdb/version
-	VERSION=`cat $(BUILD)/tzdb/version` && printf '%s\n' \
+$(TZDB_DIR)/version.h: $(TZDB_DIR)/version
+	VERSION=`cat $(TZDB_DIR)/version` && printf '%s\n' \
 		'static char const PKGVERSION[]="($(PACKAGE)) ";' \
 		"static char const TZVERSION[]=\"$$VERSION\";" \
 		'static char const REPORT_BUGS_TO[]="$(BUGEMAIL)";' \
@@ -72,13 +72,13 @@ $(BUILD)/tzdb/version.h: $(BUILD)/tzdb/version
 
 ### End copied definitions
 
-$(TZDB_DIR)/zic: $(TZDB_DIR) $(TZDB_DIR)/zic.c
+$(TZDB_DIR)/zic: $(TZDB_DIR) $(TZDB_DIR)/zic.c $(TZDB_DIR)/version.h
 	@echo " HOSTCC $(notdir $@)"
-	$(CC_FOR_BUILD) $(CFLAGS) -o $@ $(BUILD)/tzdb/zic.c
+	$(CC_FOR_BUILD) $(CFLAGS) -o $@ $(TZDB_DIR)/zic.c
 
 $(PREFIX)/zoneinfo: $(TZDB_DIR)/zic $(PREFIX) Makefile
 	@echo "    ZIC $(notdir $@)"
-	cd $(BUILD)/tzdb && ./zic -d $@ $(ZIC_OPTIONS) $(TDATA)
+	cd $(TZDB_DIR) && ./zic -d $@ $(ZIC_OPTIONS) $(TDATA)
 
 $(TZDB_FILENAME):
 	@echo "   WGET $(notdir $@)"
