@@ -38,7 +38,7 @@ defmodule ZoneinfoTest do
 
       assert Zoneinfo.tzpath() == "tzpath_environment"
 
-      :os.unsetenv('TZPATH')
+      :os.unsetenv(~c"TZPATH")
       pop_path(old_path)
     end
 
