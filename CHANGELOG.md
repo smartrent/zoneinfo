@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.6
+
+* Improvements
+  * Fix warnings when building on Elixir 1.15
+  * Improve testing
+
 ## v0.1.5
 
 * Improvements
