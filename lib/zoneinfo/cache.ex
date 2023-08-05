@@ -16,17 +16,22 @@ defmodule Zoneinfo.Cache do
   """
   @spec get(binary) :: {:ok, Zoneinfo.TZif.t()} | {:error, File.posix() | :invalid}
   def get(time_zone) when is_binary(time_zone) do
-    case :ets.lookup(@table, time_zone) do
-      [{^time_zone, tzif}] ->
-        {:ok, tzif}
-
-      _ ->
-        GenServer.call(__MODULE__, {:load, time_zone})
+    with {:error, _} <- lookup_ets(time_zone) do
+      # Call the cache with a 2.5 second timeout, so that if it does timeout,
+      # there's time to recover without other GenServer.call's timing out
+      # around this one.
+      GenServer.call(__MODULE__, {:load, time_zone}, 2500)
     end
   rescue
     ArgumentError ->
-      # GenServer crashed. Try to load manually.
-      load_time_zone(time_zone)
+      # GenServer not running. This happens when this gets called before the
+      # `:zoneinfo` application is started, but might also happen if something
+      # stops the app startup process.
+      safe_load_time_zone(time_zone)
+  catch
+    :exit, {:timeout, _} ->
+      # GenServer.call timed out. This has been seen in the wild. Try to recover.
+      safe_load_time_zone(time_zone)
   end
 
   @doc """
@@ -60,15 +65,14 @@ defmodule Zoneinfo.Cache do
 
   @impl GenServer
   def handle_call({:load, time_zone}, _from, gc_timer_ref) do
-    result = load_time_zone(time_zone)
-
-    case result do
-      {:ok, tzif} ->
+    # Check that we didn't just load the time zone while the
+    # request was queued, and if not, load it.
+    result =
+      with {:error, _} <- lookup_ets(time_zone),
+           {:ok, tzif} <- load_time_zone(time_zone) do
         :ets.insert(@table, {time_zone, tzif})
-
-      _ ->
-        :ok
-    end
+        {:ok, tzif}
+      end
 
     {:reply, result, gc_timer_ref}
   end
@@ -99,6 +103,13 @@ defmodule Zoneinfo.Cache do
     Process.send_after(self(), :gc, @ttl_seconds * 1000)
   end
 
+  defp safe_load_time_zone(time_zone) do
+    load_time_zone(time_zone)
+  catch
+    kind, value ->
+      {:error, "zoneinfo couldn't recover: #{inspect({kind, value})}"}
+  end
+
   defp load_time_zone(time_zone) do
     Zoneinfo.tzpath()
     |> Path.join(time_zone)
@@ -120,6 +131,16 @@ defmodule Zoneinfo.Cache do
       Zoneinfo.TZif.parse(header <> rest)
     else
       _error -> {:error, :invalid}
+    end
+  end
+
+  defp lookup_ets(time_zone) do
+    case :ets.lookup(@table, time_zone) do
+      [{^time_zone, tzif}] ->
+        {:ok, tzif}
+
+      _ ->
+        {:error, :invalid}
     end
   end
 end
