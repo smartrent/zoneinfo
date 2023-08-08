@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.1.7
+
+* Improvements
+  * Reduce chances of raising when something goes wrong getting the time zone
+    information. For example, recover if a time zone hasn't been loaded yet and
+    the cache GenServer isn't available. This fixes crashes in code that may not be
+    easy to debug when there are calendar troubles.
+  * Don't load a time zone more than once if multiple processes ask for the same
+    one at the same time.
+
 ## v0.1.6
 
 * Improvements
