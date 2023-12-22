@@ -62,7 +62,7 @@ The final step is to specify the location of the time zone files. Zoneinfo looks
 at the following locations:
 
 1. The `:tzpath` key in the application environment
-2. The `TZPATH` environment variable
+2. The `TZDIR` environment variable
 3. `/usr/share/zoneinfo`
 
 Since `/usr/share/zoneinfo` is the default on Linux and OSX, you may not need to

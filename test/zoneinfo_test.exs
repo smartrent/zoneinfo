@@ -34,6 +34,16 @@ defmodule ZoneinfoTest do
 
     test "OS environment" do
       old_path = clear_path()
+      System.put_env("TZDIR", "tzpath_environment")
+
+      assert Zoneinfo.tzpath() == "tzpath_environment"
+
+      :os.unsetenv(~c"TZDIR")
+      pop_path(old_path)
+    end
+
+    test "deprecated TZPATH OS environment" do
+      old_path = clear_path()
       System.put_env("TZPATH", "tzpath_environment")
 
       assert Zoneinfo.tzpath() == "tzpath_environment"

@@ -10,7 +10,7 @@ defmodule Zoneinfo do
 
   Time zone data is loaded from the path returned by `tzpath/0`. The default
   is to use `/usr/share/zoneinfo`, but that may be changed by setting the
-  `$TZPATH` environment or adding the following to your project's `config.exs`:
+  `$TZDIR` environment or adding the following to your project's `config.exs`:
 
   ```elixir
   config :zoneinfo, tzpath: "/custom/location"
@@ -45,7 +45,10 @@ defmodule Zoneinfo do
   """
   @spec tzpath() :: binary()
   def tzpath() do
+    # TZDIR is preferred. TZPATH was originally used and is supported for
+    # backwards compatibility.
     with nil <- Application.get_env(:zoneinfo, :tzpath),
+         nil <- System.get_env("TZDIR"),
          nil <- System.get_env("TZPATH") do
       "/usr/share/zoneinfo"
     end
