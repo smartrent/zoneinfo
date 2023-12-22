@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.8
+
+* Changes
+  * Support `$TZDIR` and use it in preference to `$TZPATH` for overriding the
+    zoneinfo directory. This is the standard environment variable. `$TZPATH` is
+    kept for backwards compatibility. Thank to @danderson for reporting.
+
 ## v0.1.7
 
 * Improvements
