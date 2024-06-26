@@ -8,7 +8,7 @@ defmodule Zoneinfo.MixProject do
     [
       app: :zoneinfo,
       version: @version,
-      elixir: "~> 1.11",
+      elixir: "~> 1.13",
       description: description(),
       package: package(),
       compilers: compilers(Mix.env()),
